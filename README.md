@@ -1,0 +1,432 @@
+# KraftLog - Gym Exercise Logging API
+
+A comprehensive REST API built with Spring Boot for tracking gym exercises, routines, and workout progress with JWT authentication.
+
+## Features
+
+- JWT-based authentication and authorization
+- User management with profile information and fitness goals
+- Exercise library with muscle group associations
+- Workout routines with customizable exercises
+- Aerobic activity tracking
+- Detailed workout logging with sets, reps, and weights
+- Progress tracking over time
+- PostgreSQL database with UUID primary keys
+- Flyway database migrations
+- Complete API documentation with Swagger/OpenAPI
+
+## Tech Stack
+
+- **Java 17**
+- **Spring Boot 3.2.1**
+- **Spring Security 6.2.1** - JWT Authentication
+- **Spring MVC** - REST API
+- **Spring Data JPA** - Data persistence
+- **PostgreSQL 16** - Database
+- **Flyway** - Database migrations
+- **SpringDoc OpenAPI** - API documentation
+- **Lombok** - Reduce boilerplate code
+- **Maven** - Build tool
+- **Docker & Docker Compose** - Containerization
+
+## Data Model
+
+### Core Entities
+- **User**: User profile with fitness goals and authentication
+- **Muscle**: Predefined muscle groups (Chest, Back, Legs, etc.)
+- **Exercise**: Exercise templates with default parameters
+- **Routine**: Workout plan for a user
+- **Workout**: Collection of exercises within a routine
+- **AerobicActivity**: Cardio activities within a routine
+
+### Logging Entities
+- **LogRoutine**: Tracks when a routine was performed
+- **LogWorkout**: Tracks individual workout sessions
+- **LogExercise**: Tracks exercise performance
+- **LogSet**: Tracks individual sets with reps and weight
+
+## Quick Start with Docker Compose (Recommended)
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Run the Application
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd KraftLog
+```
+
+2. **Start the application**
+```bash
+docker-compose up -d
+```
+
+This will:
+- Start a PostgreSQL database container
+- Build and start the application container
+- Run database migrations automatically
+- Expose the API on port 8080
+
+3. **Access the application**
+- API Base URL: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- API Docs: http://localhost:8080/v3/api-docs
+
+4. **Stop the application**
+```bash
+docker-compose down
+```
+
+5. **Stop and remove volumes (reset database)**
+```bash
+docker-compose down -v
+```
+
+## Manual Setup (Development)
+
+### Prerequisites
+- Java 17 or higher
+- Maven 3.9+
+- PostgreSQL 14+
+
+### Steps
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd KraftLog
+```
+
+2. **Configure PostgreSQL**
+
+Create a database:
+```sql
+CREATE DATABASE kraftlog;
+```
+
+3. **Update application.yml** (Optional)
+
+Edit `src/main/resources/application.yml` with your database credentials if different:
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kraftlog
+    username: postgres
+    password: postgres
+```
+
+4. **Build the project**
+```bash
+mvn clean install
+```
+
+5. **Run the application**
+```bash
+mvn spring-boot:run
+```
+
+The API will be available at `http://localhost:8080`
+
+## API Documentation
+
+The API documentation is available via Swagger UI when the application is running:
+
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
+- **OpenAPI YAML**: http://localhost:8080/v3/api-docs.yaml
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login and receive JWT token
+
+### User Management
+- `POST /api/users` - Create a user
+- `GET /api/users` - Get all users
+- `GET /api/users/{id}` - Get user by ID
+- `GET /api/users/email/{email}` - Get user by email
+- `PUT /api/users/{id}` - Update user
+- `DELETE /api/users/{id}` - Delete user
+
+### Muscle Management
+- `GET /api/muscles` - Get all muscles (pre-populated)
+
+### Exercise Management
+- `POST /api/exercises` - Create exercise
+- `GET /api/exercises` - Get all exercises
+- `GET /api/exercises/{id}` - Get exercise by ID
+- `PUT /api/exercises/{id}` - Update exercise
+- `DELETE /api/exercises/{id}` - Delete exercise
+
+### Routine Management
+- `POST /api/routines` - Create routine
+- `GET /api/routines` - Get all routines
+- `GET /api/routines/{id}` - Get routine by ID
+- `GET /api/routines/user/{userId}` - Get routines by user
+- `PUT /api/routines/{id}` - Update routine
+- `DELETE /api/routines/{id}` - Delete routine
+
+### Routine Logging
+- `POST /api/log-routines` - Start a routine session
+- `GET /api/log-routines` - Get all routine sessions
+- `GET /api/log-routines/{id}` - Get routine session by ID
+- `PUT /api/log-routines/{id}` - Update routine session
+- `DELETE /api/log-routines/{id}` - Delete routine session
+
+### Set Logging
+- `POST /api/log-sets` - Log a set
+- `GET /api/log-sets` - Get all logged sets
+- `GET /api/log-sets/{id}` - Get logged set by ID
+- `GET /api/log-sets/log-exercise/{logExerciseId}` - Get sets by exercise
+- `PUT /api/log-sets/{id}` - Update logged set
+- `DELETE /api/log-sets/{id}` - Delete logged set
+
+## Authentication
+
+All endpoints (except `/api/auth/**`, `/swagger-ui/**`, and `/v3/api-docs/**`) require JWT authentication.
+
+### How to Authenticate
+
+1. **Register a new user**
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John",
+    "surname": "Doe",
+    "email": "john@example.com",
+    "password": "securepassword",
+    "birthDate": "1990-01-15",
+    "weightKg": 80.0,
+    "heightCm": 180.0,
+    "fitnessGoal": "MUSCLE_GAIN"
+  }'
+```
+
+2. **Login to get JWT token**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "securepassword"
+  }'
+```
+
+Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "type": "Bearer",
+  "user": {
+    "id": "...",
+    "name": "John",
+    "surname": "Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+3. **Use the token in subsequent requests**
+```bash
+curl -X GET http://localhost:8080/api/exercises \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+## Complete Workflow Example
+
+### 1. Register and Login
+```bash
+# Register
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John",
+    "surname": "Doe",
+    "email": "john@example.com",
+    "password": "password123",
+    "birthDate": "1990-01-15",
+    "weightKg": 80.0,
+    "heightCm": 180.0,
+    "fitnessGoal": "MUSCLE_GAIN"
+  }'
+
+# Login and save token
+TOKEN=$(curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "john@example.com", "password": "password123"}' \
+  | jq -r '.token')
+```
+
+### 2. Create Exercises
+```bash
+# Get available muscles
+curl -X GET http://localhost:8080/api/muscles \
+  -H "Authorization: Bearer $TOKEN"
+
+# Create a Bench Press exercise
+EXERCISE_ID=$(curl -X POST http://localhost:8080/api/exercises \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Barbell Bench Press",
+    "description": "Classic chest exercise",
+    "sets": 4,
+    "repetitions": 10,
+    "defaultWeightKg": 80.0,
+    "equipmentType": "BARBELL",
+    "muscleIds": ["CHEST_MUSCLE_UUID"]
+  }' | jq -r '.id')
+```
+
+### 3. Create a Routine
+```bash
+ROUTINE_ID=$(curl -X POST http://localhost:8080/api/routines \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Chest Day",
+    "startDate": "2025-01-01",
+    "isActive": true,
+    "userId": "YOUR_USER_ID"
+  }' | jq -r '.id')
+```
+
+### 4. Start a Workout Session
+```bash
+LOG_ROUTINE_ID=$(curl -X POST http://localhost:8080/api/log-routines \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "routineId": "'$ROUTINE_ID'",
+    "startDatetime": "2025-10-14T10:00:00"
+  }' | jq -r '.id')
+```
+
+### 5. Log Exercise Sets
+```bash
+# Log first set
+curl -X POST http://localhost:8080/api/log-sets \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "logExerciseId": "LOG_EXERCISE_ID",
+    "setNumber": 1,
+    "reps": 10,
+    "weightKg": 80.0,
+    "restTimeSeconds": 90
+  }'
+```
+
+## Fitness Goals
+
+Available fitness goals:
+- `WEIGHT_LOSS` - Focus on losing weight
+- `MUSCLE_GAIN` - Focus on building muscle
+- `MAINTENANCE` - Maintain current fitness level
+- `STRENGTH` - Focus on increasing strength
+- `ENDURANCE` - Focus on improving endurance
+
+## Muscle Groups
+
+Pre-configured muscle groups:
+- CHEST
+- DELTOIDS
+- SHOULDERS
+- BICEPS
+- TRICEPS
+- BACK
+- FOREARMS
+- GLUTES
+- LEGS
+- CALVES
+
+## Equipment Types
+
+Supported equipment:
+- BARBELL
+- DUMBBELL
+- MACHINE
+- SMITH_MACHINE
+- CABLE
+- BODYWEIGHT
+- KETTLEBELL
+- RESISTANCE_BAND
+- OTHER
+
+## Metric System
+
+All measurements use the metric system:
+- Weight: Kilograms (kg)
+- Height: Centimeters (cm)
+- Distance: Kilometers (km)
+
+## Database Migrations
+
+Flyway migrations are located in `src/main/resources/db/migration/`:
+- `V1__create_initial_schema.sql` - Creates all tables
+- `V2__insert_muscle_groups.sql` - Seeds predefined muscle groups
+
+Migrations run automatically on application startup.
+
+## Testing
+
+Run all tests:
+```bash
+mvn test
+```
+
+Run integration tests:
+```bash
+mvn verify
+```
+
+## Project Structure
+
+```
+src/main/java/com/kraftlog/
+├── entity/          # JPA entities
+├── repository/      # Spring Data repositories
+├── service/         # Business logic layer
+├── controller/      # REST controllers
+├── dto/             # Data transfer objects
+├── config/          # Configuration classes
+├── security/        # Security configuration & JWT
+└── exception/       # Custom exceptions
+
+src/main/resources/
+├── db/migration/    # Flyway migration scripts
+└── application.yml  # Application configuration
+
+src/test/java/
+└── com/kraftlog/
+    ├── integration/ # Integration tests
+    └── service/     # Unit tests
+```
+
+## Environment Variables
+
+The application can be configured using environment variables:
+
+- `SPRING_DATASOURCE_URL` - Database URL (default: jdbc:postgresql://localhost:5432/kraftlog)
+- `SPRING_DATASOURCE_USERNAME` - Database username (default: postgres)
+- `SPRING_DATASOURCE_PASSWORD` - Database password (default: postgres)
+- `SERVER_PORT` - Server port (default: 8080)
+- `JWT_SECRET` - JWT signing secret (default: provided in application.yml)
+- `JWT_EXPIRATION` - JWT expiration in milliseconds (default: 86400000 - 24 hours)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+MIT License
