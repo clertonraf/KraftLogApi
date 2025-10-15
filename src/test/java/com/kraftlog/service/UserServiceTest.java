@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -36,6 +37,9 @@ class UserServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -80,6 +84,7 @@ class UserServiceTest {
     void shouldCreateUser() {
         // Given
         when(userRepository.existsByEmail(createRequest.getEmail())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(modelMapper.map(createRequest, User.class)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
@@ -92,6 +97,7 @@ class UserServiceTest {
         assertThat(result.getName()).isEqualTo("John");
         assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
         verify(userRepository).existsByEmail(createRequest.getEmail());
+        verify(passwordEncoder).encode(anyString());
         verify(userRepository).save(any(User.class));
     }
 
