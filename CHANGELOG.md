@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed Docker tag format error in GitHub Actions workflow (changed from `{{branch}}-` prefix to `sha-` prefix)
 - Fixed ARM64 platform support by switching from Alpine to Ubuntu Jammy base image
+- Fixed Lombok boolean getter method name in CustomUserDetailsService (changed from `getIsAdmin()` to `isAdmin()`)
 
 ### CI/CD
 - Created GitHub Actions workflow for automated Docker image builds
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled automatic builds on push to main branch and version tags
 - Added pull request build validation (build-only, no push)
 - Implemented Docker layer caching for faster builds
+- Added automated test execution before Docker image creation
 
 ## [1.0.0] - 2025-10-15
 
