@@ -5,6 +5,7 @@ A comprehensive REST API built with Spring Boot for tracking gym exercises, rout
 ## Features
 
 - JWT-based authentication and authorization
+- **Administrator role with privileged access**
 - User management with profile information and fitness goals
 - Exercise library with muscle group associations
 - Workout routines with customizable exercises
@@ -156,11 +157,15 @@ The API documentation is available via Swagger UI when the application is runnin
 - `GET /api/muscles` - Get all muscles (pre-populated)
 
 ### Exercise Management
-- `POST /api/exercises` - Create exercise
+- `POST /api/exercises` - Create exercise (Admin only)
 - `GET /api/exercises` - Get all exercises
 - `GET /api/exercises/{id}` - Get exercise by ID
-- `PUT /api/exercises/{id}` - Update exercise
-- `DELETE /api/exercises/{id}` - Delete exercise
+- `PUT /api/exercises/{id}` - Update exercise (Admin only)
+- `DELETE /api/exercises/{id}` - Delete exercise (Admin only)
+
+### Admin Management (Admin only)
+- `DELETE /api/admin/users/{userId}` - Delete any user
+- `PUT /api/admin/users/{userId}/password` - Change any user's password
 
 ### Routine Management
 - `POST /api/routines` - Create routine
@@ -370,6 +375,7 @@ All measurements use the metric system:
 Flyway migrations are located in `src/main/resources/db/migration/`:
 - `V1__create_initial_schema.sql` - Creates all tables
 - `V2__insert_muscle_groups.sql` - Seeds predefined muscle groups
+- `V3__add_admin_role.sql` - Adds admin role column to users table
 
 Migrations run automatically on application startup.
 
@@ -408,16 +414,140 @@ src/test/java/
     └── service/     # Unit tests
 ```
 
+## Administrator Role
+
+### Overview
+
+The application includes an administrator role with special privileges:
+- **Create, update, and delete exercises** in the database
+- **Delete users** from the system
+- **Change passwords** for any user
+
+### Admin Initialization
+
+An admin user is automatically created on first startup. You can customize admin credentials using environment variables.
+
+### Configuring Admin Credentials
+
+**Option 1: Using Environment Variables (Docker Compose)**
+
+Create a `.env` file in the root directory:
+```env
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-secure-password
+ADMIN_EMAIL=admin@yourdomain.com
+```
+
+Then run:
+```bash
+docker-compose up -d
+```
+
+**Option 2: Set Environment Variables Directly**
+
+```bash
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD=your-secure-password
+export ADMIN_EMAIL=admin@yourdomain.com
+mvn spring-boot:run
+```
+
+**Option 3: Docker Compose Override**
+
+Update `docker-compose.yml` environment section:
+```yaml
+environment:
+  ADMIN_USERNAME: admin
+  ADMIN_PASSWORD: your-secure-password
+  ADMIN_EMAIL: admin@yourdomain.com
+```
+
+### Default Admin Credentials
+
+If no environment variables are set, the default admin credentials are:
+- **Email**: `admin@kraftlog.com`
+- **Password**: `admin123`
+
+**⚠️ Important**: Change the admin password immediately after first login for security!
+
+### Admin Operations
+
+**1. Login as Admin**
+```bash
+ADMIN_TOKEN=$(curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@kraftlog.com",
+    "password": "admin123"
+  }' | jq -r '.token')
+```
+
+**2. Create an Exercise (Admin only)**
+```bash
+curl -X POST http://localhost:8080/api/exercises \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Squat",
+    "description": "Compound leg exercise",
+    "sets": 4,
+    "repetitions": 8,
+    "defaultWeightKg": 100.0,
+    "equipmentType": "BARBELL",
+    "muscleIds": ["LEG_MUSCLE_UUID"]
+  }'
+```
+
+**3. Delete a User (Admin only)**
+```bash
+curl -X DELETE http://localhost:8080/api/admin/users/{userId} \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+**4. Change User Password (Admin only)**
+```bash
+curl -X PUT http://localhost:8080/api/admin/users/{userId}/password \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "newPassword": "newSecurePassword123"
+  }'
+```
+
+### Admin vs Regular Users
+
+| Feature | Regular User | Admin User |
+|---------|-------------|------------|
+| View exercises | ✅ | ✅ |
+| Create exercises | ❌ | ✅ |
+| Update exercises | ❌ | ✅ |
+| Delete exercises | ❌ | ✅ |
+| Manage own profile | ✅ | ✅ |
+| Delete other users | ❌ | ✅ |
+| Change other users' passwords | ❌ | ✅ |
+| Create routines | ✅ | ✅ |
+| Log workouts | ✅ | ✅ |
+
 ## Environment Variables
 
 The application can be configured using environment variables:
 
+### Database Configuration
 - `SPRING_DATASOURCE_URL` - Database URL (default: jdbc:postgresql://localhost:5432/kraftlog)
 - `SPRING_DATASOURCE_USERNAME` - Database username (default: postgres)
 - `SPRING_DATASOURCE_PASSWORD` - Database password (default: postgres)
+
+### Server Configuration
 - `SERVER_PORT` - Server port (default: 8080)
+
+### JWT Configuration
 - `JWT_SECRET` - JWT signing secret (default: provided in application.yml)
 - `JWT_EXPIRATION` - JWT expiration in milliseconds (default: 86400000 - 24 hours)
+
+### Admin Configuration
+- `ADMIN_USERNAME` - Admin username (default: admin)
+- `ADMIN_PASSWORD` - Admin password (default: admin123)
+- `ADMIN_EMAIL` - Admin email (default: admin@kraftlog.com)
 
 ## Contributing
 

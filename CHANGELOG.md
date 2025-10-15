@@ -1,0 +1,71 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Administrator Role System**
+  - Added `isAdmin` boolean field to User entity to distinguish admin users from regular users
+  - Implemented automatic admin user creation on application startup via `AdminInitializer` component
+  - Added configurable admin credentials through environment variables:
+    - `ADMIN_USERNAME` (default: admin)
+    - `ADMIN_PASSWORD` (default: admin123)
+    - `ADMIN_EMAIL` (default: admin@kraftlog.com)
+  - Created `.env.example` file to document admin configuration options
+
+- **Admin-Only Exercise Management**
+  - Restricted exercise creation endpoint (`POST /api/exercises`) to admin users only
+  - Restricted exercise update endpoint (`PUT /api/exercises/{id}`) to admin users only
+  - Restricted exercise deletion endpoint (`DELETE /api/exercises/{id}`) to admin users only
+  - Regular users can still view all exercises
+
+- **Admin Management Endpoints**
+  - Added `DELETE /api/admin/users/{userId}` endpoint for admins to delete any user
+  - Added `PUT /api/admin/users/{userId}/password` endpoint for admins to change any user's password
+  - Created `AdminController` with `@PreAuthorize("hasRole('ADMIN')")` protection
+  - Created `AdminService` to handle admin-specific business logic
+  - Added `ChangePasswordRequest` DTO for password change operations
+
+- **Database Changes**
+  - Created Flyway migration `V3__add_admin_role.sql` to add `is_admin` column to users table
+  - Added database index on `is_admin` column for efficient admin queries
+
+- **Security Enhancements**
+  - Updated `CustomUserDetailsService` to assign `ROLE_ADMIN` to admin users and `ROLE_USER` to regular users
+  - Integrated Spring Security's `@PreAuthorize` annotation for role-based access control
+
+- **Testing Support**
+  - Added `adminUser()` builder method to `TestDataBuilder` for creating admin users in tests
+  - Updated existing user builder to explicitly set `isAdmin = false` for regular users
+
+- **Docker Compose Configuration**
+  - Added admin environment variables to docker-compose.yml with sensible defaults
+  - Environment variables are passed from host to container for flexible configuration
+
+### Changed
+- Updated User entity to include admin role flag with default value of `false`
+- Enhanced JWT authentication to include role information (ROLE_ADMIN or ROLE_USER)
+- Updated API documentation in README.md with comprehensive admin role documentation
+- Improved Swagger/OpenAPI documentation with admin-only endpoint markers
+
+### Documentation
+- Added "Administrator Role" section to README.md covering:
+  - Overview of admin privileges and capabilities
+  - Admin initialization process
+  - Three configuration options for setting admin credentials
+  - Default admin credentials with security warnings
+  - Complete admin operation examples with curl commands
+  - Comparison table of admin vs regular user permissions
+- Updated API Endpoints section to mark admin-only endpoints
+- Added admin configuration to Environment Variables section
+- Updated Database Migrations section to include V3 migration
+- Enhanced features list to highlight administrator role functionality
+
+### Security
+- Admin password defaults are documented with strong recommendation to change on first login
+- All admin operations require JWT authentication with ROLE_ADMIN authority
+- Admin endpoints return 403 Forbidden when accessed by non-admin users

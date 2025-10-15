@@ -49,6 +49,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private FitnessGoal fitnessGoal;
 
+    @Column(name = "is_admin", nullable = false)
+    @Builder.Default
+    private boolean isAdmin = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
