@@ -18,13 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Enhanced Dockerfile**
   - Added OCI metadata labels for better image documentation
   - Implemented non-root user (kraftlog) for improved security
-  - Added health check endpoint monitoring
+  - Added health check endpoint monitoring using curl
   - Optimized multi-stage build process
-  - Support for multi-platform builds
+  - Support for multi-platform builds (linux/amd64, linux/arm64)
 
 ### Changed
 - Updated project version from 0.0.1-SNAPSHOT to 1.0.0
 - Enhanced Docker image security with non-root user execution
+- Switched base image from `eclipse-temurin:17-jre-alpine` to `eclipse-temurin:17-jre-jammy` for ARM64 support
+
+### Fixed
+- Fixed Docker tag format error in GitHub Actions workflow (changed from `{{branch}}-` prefix to `sha-` prefix)
+- Fixed ARM64 platform support by switching from Alpine to Ubuntu Jammy base image
 
 ### CI/CD
 - Created GitHub Actions workflow for automated Docker image builds

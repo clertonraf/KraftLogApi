@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Run stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="KraftLog API"
@@ -23,8 +23,11 @@ LABEL org.opencontainers.image.documentation="https://github.com/clertonraf/Kraf
 
 WORKDIR /app
 
+# Install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user for security
-RUN addgroup -S kraftlog && adduser -S kraftlog -G kraftlog
+RUN groupadd -r kraftlog && useradd -r -g kraftlog kraftlog
 
 # Copy the built jar from build stage
 COPY --from=build /app/target/*.jar app.jar
@@ -40,7 +43,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
