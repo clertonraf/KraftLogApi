@@ -97,7 +97,8 @@ Pre-built Docker images are automatically published to GitHub Container Registry
 - `ghcr.io/clertonraf/kraftlogapi:1.0` - Major.minor version
 - `ghcr.io/clertonraf/kraftlogapi:1` - Major version
 - `ghcr.io/clertonraf/kraftlogapi:main` - Latest build from main branch
-- `ghcr.io/clertonraf/kraftlogapi:main-<sha>` - Specific commit from main
+- `ghcr.io/clertonraf/kraftlogapi:sha-<commit>` - Specific commit SHA
+- `ghcr.io/clertonraf/kraftlogapi:pr-<number>` - Pull request builds
 
 ### Using Pre-built Images
 
