@@ -1,5 +1,6 @@
 package com.kraftlog.service;
 
+import com.kraftlog.config.CacheConfig;
 import com.kraftlog.dto.RoutineCreateRequest;
 import com.kraftlog.dto.RoutineResponse;
 import com.kraftlog.entity.Routine;
@@ -9,6 +10,9 @@ import com.kraftlog.repository.RoutineRepository;
 import com.kraftlog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,9 @@ public class RoutineService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.ROUTINES_CACHE, allEntries = true)
+    })
     public RoutineResponse createRoutine(RoutineCreateRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getUserId()));
@@ -41,6 +48,7 @@ public class RoutineService {
         return mapToResponse(savedRoutine);
     }
 
+    @Cacheable(value = CacheConfig.ROUTINE_CACHE, key = "#id")
     @Transactional(readOnly = true)
     public RoutineResponse getRoutineById(UUID id) {
         Routine routine = routineRepository.findById(id)
@@ -48,6 +56,7 @@ public class RoutineService {
         return mapToResponse(routine);
     }
 
+    @Cacheable(value = CacheConfig.ROUTINES_CACHE)
     @Transactional(readOnly = true)
     public List<RoutineResponse> getAllRoutines() {
         return routineRepository.findAll().stream()
@@ -55,6 +64,7 @@ public class RoutineService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = CacheConfig.ROUTINES_CACHE, key = "'user-' + #userId")
     @Transactional(readOnly = true)
     public List<RoutineResponse> getRoutinesByUserId(UUID userId) {
         if (!userRepository.existsById(userId)) {
@@ -65,6 +75,10 @@ public class RoutineService {
                 .collect(Collectors.toList());
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.ROUTINE_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.ROUTINES_CACHE, allEntries = true)
+    })
     public RoutineResponse updateRoutine(UUID id, RoutineCreateRequest request) {
         Routine routine = routineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Routine", "id", id));
@@ -86,6 +100,10 @@ public class RoutineService {
         return mapToResponse(updatedRoutine);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.ROUTINE_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.ROUTINES_CACHE, allEntries = true)
+    })
     public void deleteRoutine(UUID id) {
         Routine routine = routineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Routine", "id", id));
