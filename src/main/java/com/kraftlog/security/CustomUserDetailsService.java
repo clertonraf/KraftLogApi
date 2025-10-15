@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         // Assign roles based on isAdmin flag
-        String role = user.getIsAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
+        String role = user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())

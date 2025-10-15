@@ -86,6 +86,84 @@ docker-compose down
 docker-compose down -v
 ```
 
+## Docker Images
+
+Pre-built Docker images are automatically published to GitHub Container Registry on every release.
+
+### Available Tags
+
+- `ghcr.io/clertonraf/kraftlogapi:latest` - Latest stable release from main branch
+- `ghcr.io/clertonraf/kraftlogapi:1.0.0` - Specific version
+- `ghcr.io/clertonraf/kraftlogapi:1.0` - Major.minor version
+- `ghcr.io/clertonraf/kraftlogapi:1` - Major version
+- `ghcr.io/clertonraf/kraftlogapi:main` - Latest build from main branch
+- `ghcr.io/clertonraf/kraftlogapi:sha-<commit>` - Specific commit SHA
+- `ghcr.io/clertonraf/kraftlogapi:pr-<number>` - Pull request builds
+
+### Using Pre-built Images
+
+**Pull the latest image:**
+```bash
+docker pull ghcr.io/clertonraf/kraftlogapi:latest
+```
+
+**Run with Docker:**
+```bash
+docker run -d \
+  --name kraftlog-app \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://your-postgres-host:5432/kraftlog \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=postgres \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=your-secure-password \
+  -e ADMIN_EMAIL=admin@yourdomain.com \
+  ghcr.io/clertonraf/kraftlogapi:latest
+```
+
+**Using with Docker Compose:**
+
+Update your `docker-compose.yml` to use the pre-built image:
+```yaml
+services:
+  app:
+    image: ghcr.io/clertonraf/kraftlogapi:1.0.0
+    container_name: kraftlog-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kraftlog
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8080
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@kraftlog.com}
+    ports:
+      - "8080:8080"
+```
+
+### Multi-Architecture Support
+
+Images are built for multiple architectures:
+- `linux/amd64` (x86_64)
+- `linux/arm64` (ARM 64-bit, including Apple Silicon)
+
+Docker will automatically pull the correct image for your platform.
+
+### Image Features
+
+- **Security**: Runs as non-root user `kraftlog`
+- **Health Checks**: Built-in health check endpoint monitoring
+- **Optimized**: Multi-stage build for minimal image size
+- **Metadata**: OCI-compliant labels for better discoverability
+- **Provenance**: Build attestation for supply chain security
+
+### Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+- **Major version** (1.x.x): Breaking changes
+- **Minor version** (x.1.x): New features, backward compatible
+- **Patch version** (x.x.1): Bug fixes, backward compatible
+
 ## Manual Setup (Development)
 
 ### Prerequisites

@@ -8,6 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **GitHub Container Registry Integration**
+  - Automated Docker image building and publishing via GitHub Actions
+  - Multi-architecture support (linux/amd64, linux/arm64)
+  - Semantic versioning for Docker images
+  - Image tagging strategy: version tags, branch tags, SHA tags, and latest tag
+  - Build provenance attestation for supply chain security
+
+- **Enhanced Dockerfile**
+  - Added OCI metadata labels for better image documentation
+  - Implemented non-root user (kraftlog) for improved security
+  - Added health check endpoint monitoring using curl
+  - Optimized multi-stage build process
+  - Support for multi-platform builds (linux/amd64, linux/arm64)
+
+### Changed
+- Updated project version from 0.0.1-SNAPSHOT to 1.0.0
+- Enhanced Docker image security with non-root user execution
+- Switched base image from `eclipse-temurin:17-jre-alpine` to `eclipse-temurin:17-jre-jammy` for ARM64 support
+
+### Fixed
+- Fixed Docker tag format error in GitHub Actions workflow (changed from `{{branch}}-` prefix to `sha-` prefix)
+- Fixed ARM64 platform support by switching from Alpine to Ubuntu Jammy base image
+- Fixed Lombok boolean getter method name in CustomUserDetailsService (changed from `getIsAdmin()` to `isAdmin()`)
+
+### CI/CD
+- Created GitHub Actions workflow for automated Docker image builds
+- Configured GitHub Container Registry (ghcr.io) as image repository
+- Enabled automatic builds on push to main branch and version tags
+- Added pull request build validation (build-only, no push)
+- Implemented Docker layer caching for faster builds
+- Added automated test execution before Docker image creation
+
+## [1.0.0] - 2025-10-15
+
+### Added
 - **Administrator Role System**
   - Added `isAdmin` boolean field to User entity to distinguish admin users from regular users
   - Implemented automatic admin user creation on application startup via `AdminInitializer` component
