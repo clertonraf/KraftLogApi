@@ -1,5 +1,6 @@
 package com.kraftlog.service;
 
+import com.kraftlog.config.CacheConfig;
 import com.kraftlog.dto.UserCreateRequest;
 import com.kraftlog.dto.UserResponse;
 import com.kraftlog.dto.UserUpdateRequest;
@@ -9,6 +10,9 @@ import com.kraftlog.exception.ResourceNotFoundException;
 import com.kraftlog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +30,9 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.USERS_CACHE, allEntries = true)
+    })
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User with email " + request.getEmail() + " already exists");
@@ -38,6 +45,7 @@ public class UserService {
         return modelMapper.map(savedUser, UserResponse.class);
     }
 
+    @Cacheable(value = CacheConfig.USER_CACHE, key = "#id")
     @Transactional(readOnly = true)
     public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id)
@@ -45,6 +53,7 @@ public class UserService {
         return modelMapper.map(user, UserResponse.class);
     }
 
+    @Cacheable(value = CacheConfig.USER_CACHE, key = "#email")
     @Transactional(readOnly = true)
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
@@ -52,6 +61,7 @@ public class UserService {
         return modelMapper.map(user, UserResponse.class);
     }
 
+    @Cacheable(value = CacheConfig.USERS_CACHE)
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -59,6 +69,10 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.USER_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.USERS_CACHE, allEntries = true)
+    })
     public UserResponse updateUser(UUID id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -86,6 +100,10 @@ public class UserService {
         return modelMapper.map(updatedUser, UserResponse.class);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.USER_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.USERS_CACHE, allEntries = true)
+    })
     public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));

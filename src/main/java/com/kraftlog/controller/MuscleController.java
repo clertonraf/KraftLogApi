@@ -1,5 +1,6 @@
 package com.kraftlog.controller;
 
+import com.kraftlog.config.CacheConfig;
 import com.kraftlog.dto.MuscleResponse;
 import com.kraftlog.entity.Muscle;
 import com.kraftlog.repository.MuscleRepository;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,7 @@ public class MuscleController {
     private final MuscleRepository muscleRepository;
     private final ModelMapper modelMapper;
 
+    @Cacheable(value = CacheConfig.MUSCLES_CACHE)
     @Operation(summary = "Get all muscles", description = "Returns all available muscles and muscle groups")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Muscles retrieved successfully",

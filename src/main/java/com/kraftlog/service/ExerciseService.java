@@ -1,5 +1,6 @@
 package com.kraftlog.service;
 
+import com.kraftlog.config.CacheConfig;
 import com.kraftlog.dto.ExerciseCreateRequest;
 import com.kraftlog.dto.ExerciseResponse;
 import com.kraftlog.dto.ExerciseUpdateRequest;
@@ -12,6 +13,9 @@ import com.kraftlog.repository.ExerciseRepository;
 import com.kraftlog.repository.MuscleRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,9 @@ public class ExerciseService {
     private final MuscleRepository muscleRepository;
     private final ModelMapper modelMapper;
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.EXERCISES_CACHE, allEntries = true)
+    })
     public ExerciseResponse createExercise(ExerciseCreateRequest request) {
         Exercise exercise = modelMapper.map(request, Exercise.class);
 
@@ -43,6 +50,7 @@ public class ExerciseService {
         return mapToResponse(savedExercise);
     }
 
+    @Cacheable(value = CacheConfig.EXERCISE_CACHE, key = "#id")
     @Transactional(readOnly = true)
     public ExerciseResponse getExerciseById(UUID id) {
         Exercise exercise = exerciseRepository.findById(id)
@@ -50,6 +58,7 @@ public class ExerciseService {
         return mapToResponse(exercise);
     }
 
+    @Cacheable(value = CacheConfig.EXERCISES_CACHE)
     @Transactional(readOnly = true)
     public List<ExerciseResponse> getAllExercises() {
         return exerciseRepository.findAll().stream()
@@ -57,6 +66,10 @@ public class ExerciseService {
                 .collect(Collectors.toList());
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.EXERCISE_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.EXERCISES_CACHE, allEntries = true)
+    })
     public ExerciseResponse updateExercise(UUID id, ExerciseUpdateRequest request) {
         Exercise exercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Exercise", "id", id));
@@ -94,6 +107,10 @@ public class ExerciseService {
         return mapToResponse(updatedExercise);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.EXERCISE_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.EXERCISES_CACHE, allEntries = true)
+    })
     public void deleteExercise(UUID id) {
         Exercise exercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Exercise", "id", id));
