@@ -142,19 +142,13 @@ public class WorkflowIntegrationTest {
         // Setup: Create user and get token
         setupAuthenticatedUser();
 
-        // 1. Get all available muscles
-        MvcResult musclesResult = mockMvc.perform(get("/api/muscles")
-                        .header("Authorization", "Bearer " + jwtToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andReturn();
-
-        List<MuscleResponse> muscles = objectMapper.readValue(
-                musclesResult.getResponse().getContentAsString(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, MuscleResponse.class));
-
-        assertThat(muscles).isNotEmpty();
-        UUID muscleId = muscles.get(0).getId();
+        // 1. Create a test muscle (since Flyway is disabled in tests)
+        com.kraftlog.entity.Muscle testMuscle = com.kraftlog.entity.Muscle.builder()
+                .name("Test Muscle")
+                .muscleGroup(com.kraftlog.entity.Muscle.MuscleGroup.CHEST)
+                .build();
+        testMuscle = muscleRepository.save(testMuscle);
+        UUID muscleId = testMuscle.getId();
 
         // 2. Create a new exercise
         ExerciseCreateRequest createRequest = ExerciseCreateRequest.builder()
@@ -453,6 +447,16 @@ public class WorkflowIntegrationTest {
         List<MuscleResponse> muscles = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
                 objectMapper.getTypeFactory().constructCollectionType(List.class, MuscleResponse.class));
+
+        // If no muscles exist (because Flyway is disabled in tests), create a test muscle
+        if (muscles.isEmpty()) {
+            com.kraftlog.entity.Muscle testMuscle = com.kraftlog.entity.Muscle.builder()
+                    .name("Test Muscle")
+                    .muscleGroup(com.kraftlog.entity.Muscle.MuscleGroup.CHEST)
+                    .build();
+            testMuscle = muscleRepository.save(testMuscle);
+            return List.of(testMuscle.getId());
+        }
 
         return muscles.stream().map(MuscleResponse::getId).toList();
     }
