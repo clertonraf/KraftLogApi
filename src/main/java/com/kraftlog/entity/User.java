@@ -51,7 +51,7 @@ public class User {
 
     @Column(name = "is_admin", nullable = false)
     @Builder.Default
-    private Boolean isAdmin = false;
+    private boolean isAdmin = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
