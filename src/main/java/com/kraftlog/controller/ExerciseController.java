@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,14 +31,16 @@ public class ExerciseController {
 
     private final ExerciseService exerciseService;
 
-    @Operation(summary = "Create a new exercise", description = "Creates a new exercise with specified details and target muscles")
+    @Operation(summary = "Create a new exercise (Admin only)", description = "Creates a new exercise with specified details and target muscles. Only administrators can create exercises.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Exercise created successfully",
                     content = @Content(schema = @Schema(implementation = ExerciseResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Admin access required", content = @Content)
     })
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExerciseResponse> createExercise(@Valid @RequestBody ExerciseCreateRequest request) {
         ExerciseResponse response = exerciseService.createExercise(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -69,15 +72,17 @@ public class ExerciseController {
         return ResponseEntity.ok(exercises);
     }
 
-    @Operation(summary = "Update exercise", description = "Updates an existing exercise")
+    @Operation(summary = "Update exercise (Admin only)", description = "Updates an existing exercise. Only administrators can update exercises.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Exercise updated successfully",
                     content = @Content(schema = @Schema(implementation = ExerciseResponse.class))),
             @ApiResponse(responseCode = "404", description = "Exercise not found", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Admin access required", content = @Content)
     })
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExerciseResponse> updateExercise(
             @Parameter(description = "Exercise ID") @PathVariable UUID id,
             @Valid @RequestBody ExerciseUpdateRequest request) {
@@ -85,13 +90,15 @@ public class ExerciseController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Delete exercise", description = "Deletes an exercise by ID")
+    @Operation(summary = "Delete exercise (Admin only)", description = "Deletes an exercise by ID. Only administrators can delete exercises.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Exercise deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Exercise not found", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Admin access required", content = @Content)
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteExercise(
             @Parameter(description = "Exercise ID") @PathVariable UUID id) {
         exerciseService.deleteExercise(id);

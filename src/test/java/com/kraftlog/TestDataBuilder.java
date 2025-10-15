@@ -19,6 +19,20 @@ public class TestDataBuilder {
                 .weightKg(75.5)
                 .heightCm(180.0)
                 .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
+                .isAdmin(false)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .routines(new ArrayList<>());
+    }
+
+    public static User.UserBuilder adminUser() {
+        return User.builder()
+                .name("Admin")
+                .surname("User")
+                .birthDate(LocalDate.of(1985, 5, 15))
+                .email("admin@kraftlog.com")
+                .password("admin123")
+                .isAdmin(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .routines(new ArrayList<>());
