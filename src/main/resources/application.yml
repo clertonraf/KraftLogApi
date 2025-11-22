@@ -59,3 +59,12 @@ logging:
     com.kraftlog: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
+
+# Exercise Import Configuration
+# Path to external muscle group mapping file (optional)
+# If not specified, exercises will be imported without muscle group associations
+# Example: exercise.muscle-groups.config-path=/path/to/exercise-muscle-groups.yml
+# Docker example: -e EXERCISE_MUSCLE_GROUPS_CONFIG_PATH=/config/exercise-muscle-groups.yml
+exercise:
+  muscle-groups:
+    config-path: ${EXERCISE_MUSCLE_GROUPS_CONFIG_PATH:}

@@ -30,6 +30,8 @@ public class ExerciseUpdateRequest {
 
     @Positive(message = "Default weight must be positive")
     private Double defaultWeightKg;
+    
+    private String videoUrl;
 
     private Exercise.EquipmentType equipmentType;
 

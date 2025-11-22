@@ -22,7 +22,7 @@ public class Exercise {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(length = 1000)
@@ -37,6 +37,9 @@ public class Exercise {
 
     @Column(name = "default_weight_kg")
     private Double defaultWeightKg;
+
+    @Column(name = "video_url", length = 500)
+    private String videoUrl;
 
     @Column(name = "equipment_type")
     @Enumerated(EnumType.STRING)

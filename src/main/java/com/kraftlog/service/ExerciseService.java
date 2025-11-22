@@ -33,11 +33,41 @@ public class ExerciseService {
     private final ModelMapper modelMapper;
 
     @Caching(evict = {
-            @CacheEvict(value = CacheConfig.EXERCISES_CACHE, allEntries = true)
+            @CacheEvict(value = CacheConfig.EXERCISES_CACHE, allEntries = true),
+            @CacheEvict(value = CacheConfig.EXERCISE_CACHE, allEntries = true)
     })
     public ExerciseResponse createExercise(ExerciseCreateRequest request) {
-        Exercise exercise = modelMapper.map(request, Exercise.class);
+        // Check if exercise with same name exists (upsert behavior)
+        Exercise exercise = exerciseRepository.findByName(request.getName())
+                .orElse(new Exercise());
+        
+        // Map all fields from request
+        exercise.setName(request.getName());
+        
+        // Only update fields that are provided (not null)
+        if (request.getDescription() != null) {
+            exercise.setDescription(request.getDescription());
+        }
+        if (request.getSets() != null) {
+            exercise.setSets(request.getSets());
+        }
+        if (request.getRepetitions() != null) {
+            exercise.setRepetitions(request.getRepetitions());
+        }
+        if (request.getTechnique() != null) {
+            exercise.setTechnique(request.getTechnique());
+        }
+        if (request.getDefaultWeightKg() != null) {
+            exercise.setDefaultWeightKg(request.getDefaultWeightKg());
+        }
+        if (request.getVideoUrl() != null) {
+            exercise.setVideoUrl(request.getVideoUrl());
+        }
+        if (request.getEquipmentType() != null) {
+            exercise.setEquipmentType(request.getEquipmentType());
+        }
 
+        // Handle muscle associations
         if (request.getMuscleIds() != null && !request.getMuscleIds().isEmpty()) {
             List<Muscle> muscles = muscleRepository.findAllById(request.getMuscleIds());
             if (muscles.size() != request.getMuscleIds().size()) {

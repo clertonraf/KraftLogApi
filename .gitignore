@@ -51,3 +51,7 @@ logs/
 # Environment
 .env
 .env.local
+
+# temporary folders
+tmp/
+temp/

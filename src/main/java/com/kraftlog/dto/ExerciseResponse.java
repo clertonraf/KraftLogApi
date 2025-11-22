@@ -22,6 +22,7 @@ public class ExerciseResponse {
     private Integer repetitions;
     private String technique;
     private Double defaultWeightKg;
+    private String videoUrl;
     private Exercise.EquipmentType equipmentType;
     private List<MuscleResponse> muscles;
 }
