@@ -1,5 +1,6 @@
 package com.kraftlog.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +18,13 @@ public class RoutineResponse {
 
     private UUID id;
     private String name;
+    
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
+    
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
+    
     private Boolean isActive;
     private UUID userId;
     private List<WorkoutResponse> workouts;

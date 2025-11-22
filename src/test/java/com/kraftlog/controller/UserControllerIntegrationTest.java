@@ -49,7 +49,6 @@ class UserControllerIntegrationTest {
                 .password("password123")
                 .weightKg(75.5)
                 .heightCm(180.0)
-                .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
                 .build();
 
         // When & Then
@@ -62,8 +61,7 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.surname").value("Doe"))
                 .andExpect(jsonPath("$.email").value("john.doe@example.com"))
                 .andExpect(jsonPath("$.weightKg").value(75.5))
-                .andExpect(jsonPath("$.heightCm").value(180.0))
-                .andExpect(jsonPath("$.fitnessGoal").value("HYPERTROPHY"));
+                .andExpect(jsonPath("$.heightCm").value(180.0));
     }
 
     @Test
@@ -168,7 +166,6 @@ class UserControllerIntegrationTest {
         UserUpdateRequest updateRequest = UserUpdateRequest.builder()
                 .weightKg(80.0)
                 .heightCm(182.0)
-                .fitnessGoal(User.FitnessGoal.STRENGTH)
                 .build();
 
         // When & Then
@@ -178,8 +175,7 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedUser.getId().toString()))
                 .andExpect(jsonPath("$.weightKg").value(80.0))
-                .andExpect(jsonPath("$.heightCm").value(182.0))
-                .andExpect(jsonPath("$.fitnessGoal").value("STRENGTH"));
+                .andExpect(jsonPath("$.heightCm").value(182.0));
     }
 
     @Test

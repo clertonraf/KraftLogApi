@@ -1,6 +1,6 @@
 package com.kraftlog.dto;
 
-import com.kraftlog.entity.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,11 +19,17 @@ public class UserResponse {
     private UUID id;
     private String name;
     private String surname;
+    
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthDate;
+    
     private String email;
     private Double weightKg;
     private Double heightCm;
-    private User.FitnessGoal fitnessGoal;
+    
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createdAt;
+    
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime updatedAt;
 }

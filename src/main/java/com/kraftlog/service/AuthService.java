@@ -35,7 +35,7 @@ public class AuthService {
     public LoginResponse register(RegisterRequest request) {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email already in use");
+            throw new BadRequestException("User with email " + request.getEmail() + " already exists");
         }
 
         // Create new user
@@ -47,7 +47,6 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .weightKg(request.getWeightKg())
                 .heightCm(request.getHeightCm())
-                .fitnessGoal(request.getFitnessGoal())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

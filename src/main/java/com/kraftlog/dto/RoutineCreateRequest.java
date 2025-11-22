@@ -1,5 +1,6 @@
 package com.kraftlog.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -19,8 +20,10 @@ public class RoutineCreateRequest {
     @NotBlank(message = "Routine name is required")
     private String name;
 
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
 
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
 
     private Boolean isActive;

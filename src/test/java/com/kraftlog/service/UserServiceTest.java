@@ -35,13 +35,11 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper = new ModelMapper();
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
     private UserService userService;
 
     private User user;
@@ -51,6 +49,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+        userService = new UserService(userRepository, modelMapper, passwordEncoder);
+        
         user = TestDataBuilder.defaultUser().build();
 
         createRequest = UserCreateRequest.builder()
@@ -61,7 +61,6 @@ class UserServiceTest {
                 .password("password123")
                 .weightKg(75.5)
                 .heightCm(180.0)
-                .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
                 .build();
 
         updateRequest = UserUpdateRequest.builder()
@@ -76,7 +75,6 @@ class UserServiceTest {
                 .email("john.doe@example.com")
                 .weightKg(75.5)
                 .heightCm(180.0)
-                .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
                 .build();
     }
 
@@ -85,9 +83,7 @@ class UserServiceTest {
         // Given
         when(userRepository.existsByEmail(createRequest.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(modelMapper.map(createRequest, User.class)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
 
         // When
         UserResponse result = userService.createUser(createRequest);
@@ -120,7 +116,6 @@ class UserServiceTest {
         // Given
         UUID userId = user.getId();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
 
         // When
         UserResponse result = userService.getUserById(userId);
@@ -150,7 +145,6 @@ class UserServiceTest {
         // Given
         String email = "john.doe@example.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
 
         // When
         UserResponse result = userService.getUserByEmail(email);
@@ -168,8 +162,6 @@ class UserServiceTest {
                 .email("jane.doe@example.com")
                 .build();
         when(userRepository.findAll()).thenReturn(Arrays.asList(user, user2));
-        when(modelMapper.map(any(User.class), eq(UserResponse.class)))
-                .thenReturn(userResponse);
 
         // When
         List<UserResponse> result = userService.getAllUsers();
@@ -185,7 +177,6 @@ class UserServiceTest {
         UUID userId = user.getId();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
 
         // When
         UserResponse result = userService.updateUser(userId, updateRequest);

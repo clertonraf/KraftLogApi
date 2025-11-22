@@ -1,6 +1,6 @@
 package com.kraftlog.dto;
 
-import com.kraftlog.entity.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -21,6 +21,7 @@ public class UserUpdateRequest {
     private String surname;
 
     @Past(message = "Birth date must be in the past")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthDate;
 
     @Positive(message = "Weight must be positive")
@@ -28,6 +29,4 @@ public class UserUpdateRequest {
 
     @Positive(message = "Height must be positive")
     private Double heightCm;
-
-    private User.FitnessGoal fitnessGoal;
 }

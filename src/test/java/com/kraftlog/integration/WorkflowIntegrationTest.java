@@ -88,7 +88,6 @@ public class WorkflowIntegrationTest {
                 .birthDate(LocalDate.of(1990, 1, 15))
                 .weightKg(80.0)
                 .heightCm(180.0)
-                .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
                 .build();
 
         MvcResult registerResult = mockMvc.perform(post("/api/auth/register")
@@ -378,7 +377,6 @@ public class WorkflowIntegrationTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .weightKg(75.0)
                 .heightCm(175.0)
-                .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
                 .build();
 
         MvcResult result = mockMvc.perform(post("/api/auth/register")
@@ -404,7 +402,6 @@ public class WorkflowIntegrationTest {
                 .birthDate(user.getBirthDate())
                 .weightKg(user.getWeightKg())
                 .heightCm(user.getHeightCm())
-                .fitnessGoal(user.getFitnessGoal())
                 .isAdmin(true)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

@@ -92,9 +92,6 @@ public class UserService {
         if (request.getHeightCm() != null) {
             user.setHeightCm(request.getHeightCm());
         }
-        if (request.getFitnessGoal() != null) {
-            user.setFitnessGoal(request.getFitnessGoal());
-        }
 
         User updatedUser = userRepository.save(user);
         return modelMapper.map(updatedUser, UserResponse.class);

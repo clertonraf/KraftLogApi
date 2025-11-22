@@ -45,10 +45,6 @@ public class User {
     @Column(name = "height_cm")
     private Double heightCm;
 
-    @Column(name = "fitness_goal")
-    @Enumerated(EnumType.STRING)
-    private FitnessGoal fitnessGoal;
-
     @Column(name = "is_admin", nullable = false)
     @Builder.Default
     private boolean isAdmin = false;
@@ -72,9 +68,5 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public enum FitnessGoal {
-        STRENGTH, HYPERTROPHY, ENDURANCE, WEIGHT_LOSS, GENERAL_FITNESS
     }
 }

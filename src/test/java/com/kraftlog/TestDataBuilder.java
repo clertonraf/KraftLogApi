@@ -18,7 +18,6 @@ public class TestDataBuilder {
                 .password("password123")
                 .weightKg(75.5)
                 .heightCm(180.0)
-                .fitnessGoal(User.FitnessGoal.HYPERTROPHY)
                 .isAdmin(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
