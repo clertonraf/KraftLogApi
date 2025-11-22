@@ -72,7 +72,7 @@ public class TestDataBuilder {
                 .orderIndex(1)
                 .intervalMinutes(90)
                 .routine(routine)
-                .exercises(new ArrayList<>())
+                .workoutExercises(new ArrayList<>())
                 .muscles(new ArrayList<>());
     }
 

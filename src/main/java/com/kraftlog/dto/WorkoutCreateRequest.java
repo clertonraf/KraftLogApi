@@ -28,7 +28,7 @@ public class WorkoutCreateRequest {
     @NotNull(message = "Routine ID is required")
     private UUID routineId;
 
-    private List<UUID> exerciseIds;
+    private List<WorkoutExerciseRequest> exercises;
 
     private List<UUID> muscleIds;
 }

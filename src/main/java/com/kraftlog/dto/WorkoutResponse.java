@@ -19,6 +19,6 @@ public class WorkoutResponse {
     private Integer orderIndex;
     private Integer intervalMinutes;
     private UUID routineId;
-    private List<ExerciseResponse> exercises;
+    private List<WorkoutExerciseResponse> exercises;
     private List<MuscleResponse> muscles;
 }

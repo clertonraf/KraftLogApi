@@ -35,14 +35,9 @@ public class Workout {
     @JoinColumn(name = "routine_id", nullable = false)
     private Routine routine;
 
-    @ManyToMany
-    @JoinTable(
-        name = "workout_exercises",
-        joinColumns = @JoinColumn(name = "workout_id"),
-        inverseJoinColumns = @JoinColumn(name = "exercise_id")
-    )
+    @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Exercise> exercises = new ArrayList<>();
+    private List<WorkoutExercise> workoutExercises = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
