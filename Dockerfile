@@ -1,5 +1,5 @@
 # Build stage
-FROM maven:3.9.11-eclipse-temurin-17 AS build
+FROM maven:3.9.11-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Copy pom.xml and download dependencies
@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Run stage
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="KraftLog API"
