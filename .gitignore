@@ -51,6 +51,8 @@ logs/
 # Environment
 .env
 .env.local
+.env.prod
+.env.dev
 
 # temporary folders
 tmp/

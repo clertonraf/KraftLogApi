@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kraftlog-postgres-dev
+    environment:
+      POSTGRES_DB: kraftlog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - kraftlog-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kraftlog-app-dev
+    environment:
+      # Database Configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kraftlog
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      
+      # Server Configuration
+      SERVER_PORT: 8080
+      
+      # Admin User Configuration (dev defaults)
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@kraftlog.com}
+      
+      # JWT Configuration (dev defaults)
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      
+      # Application Configuration
+      SPRING_PROFILES_ACTIVE: dev
+      
+      # Logging (more verbose for development)
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_COM_KRAFTLOG: DEBUG
+      
+      # Development flags
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount source code for hot reload (optional - requires spring-boot-devtools)
+      - ./src:/app/src:ro
+      - ./target:/app/target
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kraftlog-network
+
+volumes:
+  postgres_data_dev:
+    driver: local
+
+networks:
+  kraftlog-network:
+    driver: bridge
