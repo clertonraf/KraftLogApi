@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface LogRoutineRepository extends JpaRepository<LogRoutine, UUID> {
 
     List<LogRoutine> findByRoutineIdOrderByStartDatetimeDesc(UUID routineId);
+    
+    List<LogRoutine> findByRoutine_UserIdOrderByStartDatetimeDesc(UUID userId);
 }

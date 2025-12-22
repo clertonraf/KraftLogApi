@@ -18,6 +18,7 @@ public class LogExerciseResponse {
     private UUID id;
     private UUID logWorkoutId;
     private UUID exerciseId;
+    private String exerciseName;
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
     private String notes;

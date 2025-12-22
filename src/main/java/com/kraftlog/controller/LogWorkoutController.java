@@ -83,6 +83,21 @@ public class LogWorkoutController {
         return ResponseEntity.ok(logWorkouts);
     }
 
+    @Operation(summary = "Get last completed workout session", description = "Returns the last completed workout session for a specific workout")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Last workout session retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = LogWorkoutResponse.class))),
+            @ApiResponse(responseCode = "404", description = "No completed workout found", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @GetMapping("/workout/{workoutId}/last")
+    public ResponseEntity<LogWorkoutResponse> getLastCompletedWorkout(
+            @Parameter(description = "Workout ID") @PathVariable UUID workoutId) {
+        return logWorkoutService.getLastCompletedWorkout(workoutId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @Operation(summary = "Update workout session", description = "Updates a logged workout session (typically to set end time)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Workout session updated successfully",

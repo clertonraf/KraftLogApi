@@ -2,6 +2,7 @@ package com.kraftlog.service;
 
 import com.kraftlog.dto.LogRoutineCreateRequest;
 import com.kraftlog.dto.LogRoutineResponse;
+import com.kraftlog.dto.LogWorkoutResponse;
 import com.kraftlog.entity.LogRoutine;
 import com.kraftlog.entity.Routine;
 import com.kraftlog.exception.ResourceNotFoundException;
@@ -53,6 +54,31 @@ public class LogRoutineService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<LogRoutineResponse> getLogRoutinesByUserId(UUID userId) {
+        return logRoutineRepository.findByRoutine_UserIdOrderByStartDatetimeDesc(userId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<LogRoutineResponse> getLogRoutinesByRoutineId(UUID routineId) {
+        List<LogRoutine> logRoutines = logRoutineRepository.findByRoutineIdOrderByStartDatetimeDesc(routineId);
+        // Initialize lazy collections within transaction
+        logRoutines.forEach(lr -> {
+            lr.getLogWorkouts().size(); // Force initialization
+            lr.getLogWorkouts().forEach(lw -> {
+                lw.getLogExercises().size();
+                lw.getLogExercises().forEach(le -> {
+                    le.getLogSets().size();
+                });
+            });
+        });
+        return logRoutines.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     public LogRoutineResponse updateLogRoutine(UUID id, LogRoutineCreateRequest request) {
         LogRoutine logRoutine = logRoutineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("LogRoutine", "id", id));
@@ -74,6 +100,10 @@ public class LogRoutineService {
     private LogRoutineResponse mapToResponse(LogRoutine logRoutine) {
         LogRoutineResponse response = modelMapper.map(logRoutine, LogRoutineResponse.class);
         response.setRoutineId(logRoutine.getRoutine().getId());
+        // Explicitly map logWorkouts to ensure they're included
+        response.setLogWorkouts(logRoutine.getLogWorkouts().stream()
+                .map(lw -> modelMapper.map(lw, LogWorkoutResponse.class))
+                .collect(Collectors.toList()));
         return response;
     }
 }

@@ -23,10 +23,8 @@ public class LogSetCreateRequest {
     @Positive(message = "Set number must be positive")
     private Integer setNumber;
 
-    @Positive(message = "Reps must be positive")
     private Integer reps;
 
-    @Positive(message = "Weight must be positive")
     private Double weightKg;
 
     private Integer restTimeSeconds;

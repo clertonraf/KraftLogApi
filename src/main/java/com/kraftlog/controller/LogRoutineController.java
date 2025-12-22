@@ -69,6 +69,34 @@ public class LogRoutineController {
         return ResponseEntity.ok(logRoutines);
     }
 
+    @Operation(summary = "Get routine sessions by user ID", description = "Returns all logged routine sessions for a specific user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Routine sessions retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = LogRoutineResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<LogRoutineResponse>> getLogRoutinesByUserId(
+            @Parameter(description = "User ID") @PathVariable UUID userId) {
+        List<LogRoutineResponse> logRoutines = logRoutineService.getLogRoutinesByUserId(userId);
+        return ResponseEntity.ok(logRoutines);
+    }
+
+    @Operation(summary = "Get routine sessions by routine ID", description = "Returns all logged routine sessions for a specific routine")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Routine sessions retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = LogRoutineResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Routine not found", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @GetMapping("/routine/{routineId}")
+    public ResponseEntity<List<LogRoutineResponse>> getLogRoutinesByRoutineId(
+            @Parameter(description = "Routine ID") @PathVariable UUID routineId) {
+        List<LogRoutineResponse> logRoutines = logRoutineService.getLogRoutinesByRoutineId(routineId);
+        return ResponseEntity.ok(logRoutines);
+    }
+
     @Operation(summary = "Update routine session", description = "Updates a logged routine session (typically to set end time)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Routine session updated successfully",

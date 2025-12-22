@@ -13,4 +13,6 @@ public interface LogWorkoutRepository extends JpaRepository<LogWorkout, UUID> {
     List<LogWorkout> findByLogRoutineId(UUID logRoutineId);
 
     List<LogWorkout> findByWorkoutId(UUID workoutId);
+    
+    List<LogWorkout> findByWorkoutIdAndEndDatetimeIsNotNullOrderByEndDatetimeDesc(UUID workoutId);
 }

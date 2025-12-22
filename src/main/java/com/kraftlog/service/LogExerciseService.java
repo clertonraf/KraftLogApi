@@ -125,6 +125,7 @@ public class LogExerciseService {
         LogExerciseResponse response = modelMapper.map(logExercise, LogExerciseResponse.class);
         response.setLogWorkoutId(logExercise.getLogWorkout().getId());
         response.setExerciseId(logExercise.getExercise().getId());
+        response.setExerciseName(logExercise.getExercise().getName());
         return response;
     }
 }
