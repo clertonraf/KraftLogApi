@@ -4,15 +4,21 @@ This project includes two Docker Compose configurations:
 - `docker-compose.dev.yml` - For development
 - `docker-compose.prod.yml` - For production
 
+Both configurations include:
+- **KraftLog API** - Main REST API (port 8080)
+- **KraftLog PDF Import** - PDF import service (port 8081)
+- **PostgreSQL** - Database
+
 ## Development Setup
 
 ### Quick Start
 ```bash
-# Start development environment
+# Start development environment (all services)
 docker-compose -f docker-compose.dev.yml up -d
 
 # View logs
 docker-compose -f docker-compose.dev.yml logs -f app
+docker-compose -f docker-compose.dev.yml logs -f pdf-import
 
 # Stop
 docker-compose -f docker-compose.dev.yml down
@@ -24,6 +30,7 @@ docker-compose -f docker-compose.dev.yml down
 - **Development database**: PostgreSQL on port 5433
 - **Default credentials**: admin/admin123
 - **Hot reload**: Source code mounted as volume (requires restart)
+- **PDF Import included**: Automatically configured to connect to API
 
 ### Configuration
 Development uses sensible defaults. Optionally create `.env.dev`:
@@ -55,25 +62,36 @@ docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d
 
 ### Deployment
 ```bash
-# Pull latest image
+# Pull latest images
 docker pull ghcr.io/clertonraf/kraftlog-api:latest
+docker pull ghcr.io/clertonraf/kraftlog-pdf-import:latest
 
-# Start production environment
+# Start production environment (all services)
 docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
 # View logs
 docker-compose -f docker-compose.prod.yml logs -f app
+docker-compose -f docker-compose.prod.yml logs -f pdf-import
 
 # Stop
 docker-compose -f docker-compose.prod.yml down
 ```
 
 ### Features
-- **Uses published image**: Pulls from GitHub Container Registry
+- **Uses published images**: Pulls from GitHub Container Registry
 - **Secure by default**: Requires strong passwords in .env
 - **Production database**: PostgreSQL on port 5432
 - **Health checks**: Automatic restart on failure
 - **Persistent data**: Named volumes for database
+- **PDF Import included**: Automatically configured to connect to API
+
+### Accessing Services
+
+Once started, you can access:
+- **Main API**: http://localhost:8080
+- **API Swagger UI**: http://localhost:8080/swagger-ui.html
+- **PDF Import**: http://localhost:8081
+- **PDF Import Swagger UI**: http://localhost:8081/swagger-ui.html
 
 ### Security Checklist
 - ✅ Strong database password (30+ characters)

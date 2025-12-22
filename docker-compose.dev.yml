@@ -64,6 +64,31 @@ services:
     networks:
       - kraftlog-network
 
+  pdf-import:
+    build:
+      context: ../KraftLogPDFImport
+      dockerfile: Dockerfile
+    container_name: kraftlog-pdf-import-dev
+    environment:
+      # KraftLog API Configuration
+      KRAFTLOG_API_URL: http://app:8080
+      KRAFTLOG_API_USERNAME: ${ADMIN_USERNAME:-admin}
+      KRAFTLOG_API_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      
+      # Muscle Groups Configuration
+      EXERCISE_MUSCLE_GROUPS_CONFIG_PATH: /app/config/exercise-muscle-groups.yml
+    ports:
+      - "8081:8081"
+    volumes:
+      - ../KraftLogPDFImport/exercise-muscle-groups.yml:/app/config/exercise-muscle-groups.yml:ro
+      # Mount source for development
+      - ../KraftLogPDFImport/src:/app/src:ro
+      - ../KraftLogPDFImport/target:/app/target
+    depends_on:
+      - app
+    networks:
+      - kraftlog-network
+
 volumes:
   postgres_data_dev:
     driver: local

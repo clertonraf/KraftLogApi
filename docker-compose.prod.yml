@@ -64,6 +64,34 @@ services:
       start_period: 60s
     restart: unless-stopped
 
+  pdf-import:
+    image: ghcr.io/clertonraf/kraftlog-pdf-import:latest  # Uses published image
+    container_name: kraftlog-pdf-import-prod
+    environment:
+      # KraftLog API Configuration
+      KRAFTLOG_API_URL: http://app:8080
+      KRAFTLOG_API_USERNAME: ${ADMIN_USERNAME:-admin}
+      KRAFTLOG_API_PASSWORD: ${ADMIN_PASSWORD}
+      
+      # Muscle Groups Configuration
+      EXERCISE_MUSCLE_GROUPS_CONFIG_PATH: /app/config/exercise-muscle-groups.yml
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./exercise-muscle-groups.yml:/app/config/exercise-muscle-groups.yml:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - kraftlog-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/import/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
 volumes:
   postgres_data_prod:
     driver: local
