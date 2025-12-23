@@ -1,12 +1,15 @@
 -- Add unique constraint to exercise name
--- Remove duplicate exercises keeping the one with most data (most recent)
+-- Remove duplicate exercises keeping one record per name
 
--- First, identify and remove duplicates, keeping only the most complete record
+-- First, identify and remove duplicates, keeping only one record for each name
 DELETE FROM exercises
-WHERE id NOT IN (
-    SELECT MIN(id)
-    FROM exercises
-    GROUP BY name
+WHERE id IN (
+    SELECT id
+    FROM (
+        SELECT id, ROW_NUMBER() OVER (PARTITION BY name ORDER BY id) as row_num
+        FROM exercises
+    ) t
+    WHERE t.row_num > 1
 );
 
 -- Add unique constraint
