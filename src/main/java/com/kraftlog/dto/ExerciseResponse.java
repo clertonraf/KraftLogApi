@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,4 +26,6 @@ public class ExerciseResponse {
     private String videoUrl;
     private Exercise.EquipmentType equipmentType;
     private List<MuscleResponse> muscles;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -155,6 +155,8 @@ public class ExerciseService {
                     .collect(Collectors.toList());
             response.setMuscles(muscleResponses);
         }
+        response.setCreatedAt(exercise.getCreatedAt());
+        response.setUpdatedAt(exercise.getUpdatedAt());
         return response;
     }
 }
