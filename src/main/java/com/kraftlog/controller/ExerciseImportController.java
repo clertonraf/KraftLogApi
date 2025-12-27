@@ -1,6 +1,5 @@
 package com.kraftlog.controller;
 
-import com.kraftlog.service.ExerciseImportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,15 +8,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
 @Slf4j
@@ -29,7 +30,10 @@ import java.util.Map;
 @PreAuthorize("hasRole('ADMIN')")
 public class ExerciseImportController {
 
-    private final ExerciseImportService exerciseImportService;
+    private final RestTemplate restTemplate;
+    
+    @Value("${kraftlog.import.service.url:http://kraftlog-import:8082}")
+    private String importServiceUrl;
 
     @Operation(summary = "Import exercises from PDF file",
                description = "Upload a PDF file containing exercise data in Portuguese format. " +
@@ -62,33 +66,47 @@ public class ExerciseImportController {
         }
         
         try {
-            // Save uploaded file temporarily
-            Path tempFile = Files.createTempFile("exercise-import-", ".pdf");
-            file.transferTo(tempFile.toFile());
+            // Forward request to kraftlog-import service
+            log.info("Forwarding PDF import request to import service: {}", importServiceUrl);
             
-            try {
-                // Import exercises
-                ExerciseImportService.ImportResult result = 
-                        exerciseImportService.importExercisesFromPdf(tempFile.toFile());
-                
-                return ResponseEntity.ok(Map.of(
-                        "status", "success",
-                        "message", "Import completed",
-                        "totalProcessed", result.getTotalCount(),
-                        "successful", result.getSuccessCount(),
-                        "failed", result.getFailureCount(),
-                        "failures", result.getFailures()
-                ));
-            } finally {
-                // Clean up temporary file
-                Files.deleteIfExists(tempFile);
-            }
+            // Prepare multipart request
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            ByteArrayResource fileResource = new ByteArrayResource(file.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return file.getOriginalFilename();
+                }
+            };
+            body.add("file", fileResource);
+            
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            
+            // Call import service
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    importServiceUrl + "/api/import/pdf",
+                    HttpMethod.POST,
+                    requestEntity,
+                    Map.class
+            );
+            
+            log.info("Import service response: {}", response.getBody());
+            
+            return ResponseEntity.status(response.getStatusCode()).body((Map<String, Object>) response.getBody());
             
         } catch (IOException e) {
-            log.error("Failed to process PDF file", e);
+            log.error("Failed to read PDF file", e);
             return ResponseEntity.internalServerError().body(Map.of(
                     "status", "error",
-                    "message", "Failed to process PDF: " + e.getMessage()
+                    "message", "Failed to read PDF: " + e.getMessage()
+            ));
+        } catch (Exception e) {
+            log.error("Failed to import exercises from PDF", e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Failed to import exercises: " + e.getMessage()
             ));
         }
     }
