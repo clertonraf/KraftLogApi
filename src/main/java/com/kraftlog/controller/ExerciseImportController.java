@@ -32,7 +32,7 @@ public class ExerciseImportController {
 
     private final RestTemplate restTemplate;
     
-    @Value("${kraftlog.import.service.url:http://kraftlog-import:8082}")
+    @Value("${KRAFTLOG_IMPORT_SERVICE_URL}")
     private String importServiceUrl;
 
     @Operation(summary = "Import exercises from PDF file",
