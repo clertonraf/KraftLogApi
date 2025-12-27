@@ -99,6 +99,20 @@ public class RoutineController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Activate routine", description = "Sets a routine as active and deactivates all other routines for the user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Routine activated successfully",
+                    content = @Content(schema = @Schema(implementation = RoutineResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Routine not found", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<RoutineResponse> activateRoutine(
+            @Parameter(description = "Routine ID") @PathVariable UUID id) {
+        RoutineResponse response = routineService.activateRoutine(id);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "Delete routine", description = "Deletes a routine by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Routine deleted successfully"),

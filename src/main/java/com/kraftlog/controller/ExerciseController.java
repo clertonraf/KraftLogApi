@@ -72,6 +72,19 @@ public class ExerciseController {
         return ResponseEntity.ok(exercises);
     }
 
+    @Operation(summary = "Search exercises by name", description = "Searches for exercises by name (case-insensitive partial match)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Search completed successfully",
+                    content = @Content(schema = @Schema(implementation = ExerciseResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
+    @GetMapping("/search")
+    public ResponseEntity<List<ExerciseResponse>> searchExercises(
+            @Parameter(description = "Search query") @RequestParam String query) {
+        List<ExerciseResponse> exercises = exerciseService.searchExercisesByName(query);
+        return ResponseEntity.ok(exercises);
+    }
+
     @Operation(summary = "Update exercise (Admin only)", description = "Updates an existing exercise. Only administrators can update exercises.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Exercise updated successfully",

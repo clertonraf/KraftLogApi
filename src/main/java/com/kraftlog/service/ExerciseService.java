@@ -96,6 +96,13 @@ public class ExerciseService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ExerciseResponse> searchExercisesByName(String query) {
+        return exerciseRepository.findByNameContainingIgnoreCase(query).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     @Caching(evict = {
             @CacheEvict(value = CacheConfig.EXERCISE_CACHE, key = "#id"),
             @CacheEvict(value = CacheConfig.EXERCISES_CACHE, allEntries = true)

@@ -110,6 +110,30 @@ public class RoutineService {
         routineRepository.delete(routine);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.ROUTINE_CACHE, allEntries = true),
+            @CacheEvict(value = CacheConfig.ROUTINES_CACHE, allEntries = true)
+    })
+    public RoutineResponse activateRoutine(UUID id) {
+        Routine routine = routineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Routine", "id", id));
+        
+        // Deactivate all other routines for this user
+        List<Routine> userRoutines = routineRepository.findByUserId(routine.getUser().getId());
+        for (Routine r : userRoutines) {
+            if (!r.getId().equals(id) && Boolean.TRUE.equals(r.getIsActive())) {
+                r.setIsActive(false);
+                routineRepository.save(r);
+            }
+        }
+        
+        // Activate this routine
+        routine.setIsActive(true);
+        Routine savedRoutine = routineRepository.save(routine);
+        
+        return mapToResponse(savedRoutine);
+    }
+
     private RoutineResponse mapToResponse(Routine routine) {
         RoutineResponse response = modelMapper.map(routine, RoutineResponse.class);
         response.setUserId(routine.getUser().getId());
