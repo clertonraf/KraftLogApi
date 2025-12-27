@@ -75,7 +75,9 @@ public class TestDataBuilder {
                 .intervalMinutes(90)
                 .routine(routine)
                 .workoutExercises(new ArrayList<>())
-                .muscles(new ArrayList<>());
+                .muscles(new ArrayList<>())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now());
     }
 
     public static AerobicActivity.AerobicActivityBuilder defaultAerobicActivity(Routine routine) {

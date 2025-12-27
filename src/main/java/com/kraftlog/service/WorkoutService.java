@@ -183,6 +183,8 @@ public class WorkoutService {
         response.setOrderIndex(workout.getOrderIndex());
         response.setIntervalMinutes(workout.getIntervalMinutes());
         response.setRoutineId(workout.getRoutine().getId());
+        response.setCreatedAt(workout.getCreatedAt());
+        response.setUpdatedAt(workout.getUpdatedAt());
         
         // Map workout exercises
         if (workout.getWorkoutExercises() != null) {
