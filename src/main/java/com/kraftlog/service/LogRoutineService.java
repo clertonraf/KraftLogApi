@@ -100,9 +100,18 @@ public class LogRoutineService {
     private LogRoutineResponse mapToResponse(LogRoutine logRoutine) {
         LogRoutineResponse response = modelMapper.map(logRoutine, LogRoutineResponse.class);
         response.setRoutineId(logRoutine.getRoutine().getId());
-        // Explicitly map logWorkouts to ensure they're included
+        
+        // Explicitly map logWorkouts with proper field mapping
         response.setLogWorkouts(logRoutine.getLogWorkouts().stream()
-                .map(lw -> modelMapper.map(lw, LogWorkoutResponse.class))
+                .map(lw -> {
+                    LogWorkoutResponse lwResponse = modelMapper.map(lw, LogWorkoutResponse.class);
+                    // Manually set the IDs from lazy-loaded relationships
+                    lwResponse.setLogRoutineId(logRoutine.getId());
+                    if (lw.getWorkout() != null) {
+                        lwResponse.setWorkoutId(lw.getWorkout().getId());
+                    }
+                    return lwResponse;
+                })
                 .collect(Collectors.toList()));
         return response;
     }
