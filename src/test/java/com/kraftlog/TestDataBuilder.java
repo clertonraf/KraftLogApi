@@ -63,7 +63,9 @@ public class TestDataBuilder {
                 .isActive(true)
                 .user(user)
                 .workouts(new ArrayList<>())
-                .aerobicActivities(new ArrayList<>());
+                .aerobicActivities(new ArrayList<>())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now());
     }
 
     public static Workout.WorkoutBuilder defaultWorkout(Routine routine) {
