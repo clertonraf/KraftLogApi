@@ -3,6 +3,7 @@ package com.kraftlog.service;
 import com.kraftlog.config.CacheConfig;
 import com.kraftlog.dto.RoutineCreateRequest;
 import com.kraftlog.dto.RoutineResponse;
+import com.kraftlog.dto.WorkoutResponse;
 import com.kraftlog.entity.Routine;
 import com.kraftlog.entity.User;
 import com.kraftlog.exception.ResourceNotFoundException;
@@ -28,6 +29,7 @@ public class RoutineService {
     private final RoutineRepository routineRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final WorkoutService workoutService;
 
     @Caching(evict = {
             @CacheEvict(value = CacheConfig.ROUTINES_CACHE, allEntries = true)
@@ -137,6 +139,15 @@ public class RoutineService {
     private RoutineResponse mapToResponse(Routine routine) {
         RoutineResponse response = modelMapper.map(routine, RoutineResponse.class);
         response.setUserId(routine.getUser().getId());
+        
+        // Properly map workouts with their exercises using WorkoutService
+        if (routine.getWorkouts() != null) {
+            List<WorkoutResponse> workoutResponses = routine.getWorkouts().stream()
+                    .map(workout -> workoutService.mapWorkoutToResponse(workout))
+                    .collect(Collectors.toList());
+            response.setWorkouts(workoutResponses);
+        }
+        
         return response;
     }
 }

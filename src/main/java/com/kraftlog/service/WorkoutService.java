@@ -84,7 +84,7 @@ public class WorkoutService {
             savedWorkout = workoutRepository.save(savedWorkout);
         }
         
-        return mapToResponse(savedWorkout);
+        return mapWorkoutToResponse(savedWorkout);
     }
 
     @Cacheable(value = CacheConfig.WORKOUT_CACHE, key = "#id")
@@ -92,14 +92,14 @@ public class WorkoutService {
     public WorkoutResponse getWorkoutById(UUID id) {
         Workout workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Workout", "id", id));
-        return mapToResponse(workout);
+        return mapWorkoutToResponse(workout);
     }
 
     @Cacheable(value = CacheConfig.WORKOUTS_CACHE)
     @Transactional(readOnly = true)
     public List<WorkoutResponse> getAllWorkouts() {
         return workoutRepository.findAll().stream()
-                .map(this::mapToResponse)
+                .map(this::mapWorkoutToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -110,7 +110,7 @@ public class WorkoutService {
             throw new ResourceNotFoundException("Routine", "id", routineId);
         }
         return workoutRepository.findByRoutineIdOrderByOrderIndexAsc(routineId).stream()
-                .map(this::mapToResponse)
+                .map(this::mapWorkoutToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -163,7 +163,7 @@ public class WorkoutService {
         }
 
         Workout updatedWorkout = workoutRepository.save(workout);
-        return mapToResponse(updatedWorkout);
+        return mapWorkoutToResponse(updatedWorkout);
     }
 
     @Caching(evict = {
@@ -176,7 +176,7 @@ public class WorkoutService {
         workoutRepository.delete(workout);
     }
 
-    private WorkoutResponse mapToResponse(Workout workout) {
+    public WorkoutResponse mapWorkoutToResponse(Workout workout) {
         WorkoutResponse response = new WorkoutResponse();
         response.setId(workout.getId());
         response.setName(workout.getName());
