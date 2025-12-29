@@ -21,6 +21,21 @@ spring:
   flyway:
     enabled: false
 
+  # Mail Configuration for tests
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: test@example.com
+    password: testpassword
+
+# Application Configuration
+app:
+  frontend:
+    url: http://localhost:3000
+
+# Import Service URL (for tests)
+KRAFTLOG_IMPORT_SERVICE_URL: http://localhost:8082
+
 logging:
   level:
     com.kraftlog: DEBUG
